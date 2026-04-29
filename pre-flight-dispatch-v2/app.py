@@ -26,7 +26,7 @@ sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 from orchestrator.supervisor import run_dispatch_check, chat_about_dispatch
 from tools.sql_tools import query_join, test_connectivity
 from tools.vector_search_tools import test_vs_connectivity
-from tools.llm_tools import llm_call
+from tools.llm_tools import llm_call, token_tracker
 from evaluation.api import register_eval_routes
 
 # ── Logging ────────────────────────────────────────────────────────────────
@@ -315,7 +315,13 @@ async def dispatch_check(request: DispatchCheckRequest):
     logger.info("Starting dispatch check for flight %s", request.flight_id)
 
     try:
+        import time as _time
+        check_start = _time.time()
         result = await run_dispatch_check(request.flight_id)
+
+        # Add token usage for this dispatch check
+        result["token_usage"] = token_tracker.get_for_flight(check_start)
+
         dispatch_cache[request.flight_id] = result
 
         # Initialize action tracker with the decision
@@ -601,3 +607,20 @@ def _get_actions_summary(flight_id: str) -> dict:
         "total_actions": len(a["actions_completed"]),
         "actions": a["actions_completed"],
     }
+
+
+# ═══════════════════════════════════════════════════════════════════════════
+# Token Usage API
+# ═══════════════════════════════════════════════════════════════════════════
+
+@app.get("/api/token-usage")
+async def get_token_usage():
+    """Get session-level token usage stats."""
+    return token_tracker.get_stats()
+
+
+@app.post("/api/token-usage/reset")
+async def reset_token_usage():
+    """Reset token usage counters."""
+    token_tracker.reset()
+    return {"message": "Token usage counters reset"}
