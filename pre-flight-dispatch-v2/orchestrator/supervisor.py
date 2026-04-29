@@ -556,27 +556,25 @@ def _run_sequential_fallback(initial_state: dict) -> dict:
 # Public API
 # ═══════════════════════════════════════════════════════════════════════════
 
-@mlflow.trace(name="dispatch_check_v2", span_type="CHAIN")
 async def run_dispatch_check(
     flight_id: str,
     progress_callback: Optional[Callable] = None,
 ) -> dict[str, Any]:
     """
-    Run the full LangGraph dispatch pipeline for a flight.
-
-    Args:
-        flight_id: Flight ID to check.
-        progress_callback: Optional async callback(agent_name, status, result).
-
-    Returns:
-        Complete dispatch result dict.
+    Run the full dispatch pipeline for a flight with MLflow tracing.
     """
     start_time = time.time()
 
     try:
+        # Ensure tracking URI points to workspace MLflow
+        from databricks.sdk import WorkspaceClient
+        w = WorkspaceClient()
+        mlflow.set_tracking_uri("databricks")
+        mlflow.set_registry_uri("databricks-uc")
         mlflow.set_experiment(MLFLOW_EXPERIMENT)
-    except Exception:
-        pass  # Experiment may not exist yet
+        logger.info("MLflow experiment set: %s", MLFLOW_EXPERIMENT)
+    except Exception as e:
+        logger.warning("MLflow experiment setup failed: %s", e)
 
     initial_state: DispatchState = {
         "flight_id": flight_id,
@@ -595,21 +593,49 @@ async def run_dispatch_check(
     if progress_callback:
         await progress_callback("orchestrator", "STARTING", {"message": "Starting dispatch check..."})
 
-    # Run the graph (LangGraph if available, sequential fallback otherwise)
+    # Run the pipeline with MLflow tracing
     graph = _get_graph()
+    mlflow_run_id = None
 
     import functools
     loop = asyncio.get_event_loop()
-    if graph is not None:
-        final_state = await loop.run_in_executor(
-            None,
-            functools.partial(graph.invoke, initial_state),
-        )
-    else:
-        final_state = await loop.run_in_executor(
-            None,
-            functools.partial(_run_sequential_fallback, initial_state),
-        )
+
+    def _traced_run(state):
+        """Run the pipeline inside an MLflow run for full tracing."""
+        nonlocal mlflow_run_id
+        try:
+            with mlflow.start_run(run_name=f"dispatch-{flight_id}-{time.strftime('%H%M%S')}") as run:
+                mlflow_run_id = run.info.run_id
+                mlflow.log_param("flight_id", flight_id)
+                mlflow.log_param("model", "gpt-oss-120b")
+                mlflow.log_param("orchestration", "sequential_fallback")
+
+                result = _run_sequential_fallback(state)
+
+                # Log metrics
+                dec = result.get("decision", {})
+                if isinstance(dec, dict):
+                    mlflow.log_param("decision", dec.get("decision", "UNKNOWN"))
+                    mlflow.log_metric("confidence", float(dec.get("confidence", 0)))
+                    mlflow.log_metric("execution_time", time.time() - start_time)
+
+                    # Log per-agent status
+                    for agent_key in ["aircraft_health", "crew_legality", "weather_notam", "regulatory_compliance"]:
+                        agent_result = result.get(agent_key, {})
+                        if isinstance(agent_result, dict):
+                            status_val = {"GREEN": 0, "AMBER": 1, "RED": 2}.get(agent_result.get("status", ""), -1)
+                            mlflow.log_metric(f"{agent_key}_status", status_val)
+                            mlflow.log_metric(f"{agent_key}_findings", len(agent_result.get("findings", [])))
+
+                return result
+        except Exception as e:
+            logger.warning("MLflow tracing failed (pipeline still runs): %s", e)
+            return _run_sequential_fallback(state)
+
+    final_state = await loop.run_in_executor(
+        None,
+        functools.partial(_traced_run, initial_state),
+    )
 
     elapsed = round(time.time() - start_time, 2)
 
@@ -625,6 +651,7 @@ async def run_dispatch_check(
         },
         "genie_analytics": _safe_json(final_state.get("genie_analytics")) if final_state.get("genie_analytics") else None,
         "decision": final_state.get("decision", {}),
+        "mlflow_run_id": mlflow_run_id,
         "execution_time_seconds": elapsed,
         "timestamp": datetime.utcnow().isoformat(),
         "messages": final_state.get("messages", []),
