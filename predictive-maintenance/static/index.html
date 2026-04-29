@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Air India Predictive Maintenance Command Center</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/static/style.css">
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>%E2%9C%88</text></svg>">
+</head>
+<body>
+
+<!-- Top Bar -->
+<header class="top-bar">
+    <div class="top-bar-left">
+        <div class="logo-area">AI</div>
+        <div>
+            <h1>Predictive Maintenance Command Center</h1>
+            <div class="top-bar-subtitle">Air India Engineering &amp; Maintenance</div>
+        </div>
+    </div>
+    <div class="top-bar-right">
+        <div class="status-indicator">
+            <span class="status-dot"></span>
+            <span>System Online</span>
+        </div>
+        <div class="clock" id="clock">--:--:-- UTC</div>
+    </div>
+</header>
+
+<!-- Alert Banner -->
+<div class="alert-banner" id="alert-banner">
+    <div class="alert-scroll" id="alert-scroll"></div>
+</div>
+
+<!-- Main Content -->
+<div class="main-container">
+
+    <!-- Fleet Overview -->
+    <section>
+        <div class="section-header">
+            <h2><span class="icon">&#9992;</span> Fleet Overview</h2>
+            <span style="font-size:12px;color:var(--text-muted)">Click an aircraft for details</span>
+        </div>
+        <div class="fleet-grid" id="fleet-grid">
+            <div style="grid-column:1/-1;text-align:center;padding:40px">
+                <div class="spinner"></div>
+                <p style="margin-top:12px;color:var(--text-muted)">Loading fleet data...</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- Aircraft Detail Panel -->
+    <section class="detail-panel" id="detail-panel"></section>
+
+    <!-- Analysis Panel -->
+    <section class="analysis-panel" id="analysis-panel"></section>
+
+    <!-- Chat Panel -->
+    <section>
+        <div class="section-header">
+            <h2><span class="icon">&#128172;</span> AI Maintenance Advisor</h2>
+        </div>
+        <div class="chat-panel">
+            <div class="chat-header">
+                <span class="status-dot"></span>
+                Fleet Intelligence Assistant
+            </div>
+            <div class="chat-messages" id="chat-messages"></div>
+            <div class="chat-input-area">
+                <input type="text" class="chat-input" id="chat-input"
+                       placeholder="Ask about fleet health, maintenance outlook, sensor trends...">
+                <button class="chat-send" id="chat-send">&#10148;</button>
+            </div>
+        </div>
+    </section>
+
+</div>
+
+<script src="/static/app.js"></script>
+</body>
+</html>

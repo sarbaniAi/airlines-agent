@@ -1,0 +1,245 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Air India Pre-Flight Readiness & Dispatch Agent</title>
+    <link rel="stylesheet" href="/static/style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+</head>
+<body>
+
+<!-- Header -->
+<header class="header">
+    <div class="header-left">
+        <div class="logo">
+            <div class="crown-icon">
+                <svg viewBox="0 0 40 40" width="40" height="40">
+                    <circle cx="20" cy="20" r="18" fill="#C4A035" opacity="0.2"/>
+                    <path d="M12 24 L16 12 L20 18 L24 12 L28 24" stroke="#C4A035" stroke-width="2.5" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+                    <circle cx="12" cy="24" r="2" fill="#C4A035"/>
+                    <circle cx="20" cy="18" r="2" fill="#C4A035"/>
+                    <circle cx="28" cy="24" r="2" fill="#C4A035"/>
+                    <line x1="10" y1="26" x2="30" y2="26" stroke="#C4A035" stroke-width="2" stroke-linecap="round"/>
+                </svg>
+            </div>
+            <div class="logo-text">
+                <h1>Air India</h1>
+                <span class="logo-subtitle">Pre-Flight Readiness & Dispatch Agent</span>
+            </div>
+        </div>
+    </div>
+    <div class="header-right">
+        <div class="header-status" id="systemStatus">
+            <span class="status-dot green"></span>
+            <span>System Online</span>
+        </div>
+        <div class="header-time" id="currentTime"></div>
+    </div>
+</header>
+
+<!-- Main Content -->
+<main class="main-content">
+
+    <!-- Flight Selector Bar -->
+    <section class="flight-selector-bar">
+        <div class="selector-label">SELECT FLIGHT</div>
+        <select id="flightSelector" class="flight-dropdown">
+            <option value="">-- Choose a flight --</option>
+        </select>
+        <button id="runCheckBtn" class="btn-dispatch" disabled>
+            <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2">
+                <polygon points="5 3 19 12 5 21 5 3"/>
+            </svg>
+            Run Dispatch Check
+        </button>
+        <div class="execution-timer" id="execTimer" style="display:none">
+            <span class="timer-icon">&#9201;</span>
+            <span id="timerValue">0.0s</span>
+        </div>
+    </section>
+
+    <!-- Flight Info Card -->
+    <section class="flight-info-card" id="flightInfoCard" style="display:none">
+        <div class="info-grid">
+            <div class="info-block route-block">
+                <div class="route-display">
+                    <span class="airport-code" id="originCode">---</span>
+                    <div class="route-line">
+                        <div class="plane-icon">
+                            <svg viewBox="0 0 24 24" width="22" height="22" fill="#C4A035">
+                                <path d="M21 16v-2l-8-5V3.5A1.5 1.5 0 0011.5 2 1.5 1.5 0 0010 3.5V9l-8 5v2l8-2.5V19l-2 1.5V22l3.5-1 3.5 1v-1.5L13 19v-5.5l8 2.5z"/>
+                            </svg>
+                        </div>
+                        <div class="route-dash"></div>
+                    </div>
+                    <span class="airport-code" id="destCode">---</span>
+                </div>
+                <div class="route-meta">
+                    <span id="flightNum" class="flight-number">--</span>
+                    <span id="flightStatus" class="flight-status-badge">--</span>
+                </div>
+            </div>
+            <div class="info-block">
+                <div class="info-label">AIRCRAFT</div>
+                <div class="info-value" id="aircraftInfo">--</div>
+                <div class="info-sub" id="aircraftReg">--</div>
+            </div>
+            <div class="info-block">
+                <div class="info-label">CAPTAIN</div>
+                <div class="info-value" id="captainName">--</div>
+                <div class="info-sub" id="captainMeta">--</div>
+            </div>
+            <div class="info-block">
+                <div class="info-label">FIRST OFFICER</div>
+                <div class="info-value" id="foName">--</div>
+                <div class="info-sub" id="foMeta">--</div>
+            </div>
+            <div class="info-block">
+                <div class="info-label">DEPARTURE</div>
+                <div class="info-value" id="departureTime">--</div>
+                <div class="info-sub" id="arrivalTime">--</div>
+            </div>
+            <div class="info-block">
+                <div class="info-label">PASSENGERS</div>
+                <div class="info-value" id="paxCount">--</div>
+                <div class="info-sub">Souls on Board</div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Agent Status Panel + Decision Panel -->
+    <div class="panels-row">
+
+        <!-- Agent Cards -->
+        <section class="agents-panel">
+            <h2 class="panel-title">Agent Status</h2>
+            <div class="agents-grid">
+
+                <div class="agent-card" id="agent-aircraft_health" data-status="idle">
+                    <div class="agent-header">
+                        <div class="agent-icon aircraft">
+                            <svg viewBox="0 0 24 24" width="24" height="24" fill="currentColor">
+                                <path d="M21 16v-2l-8-5V3.5A1.5 1.5 0 0011.5 2 1.5 1.5 0 0010 3.5V9l-8 5v2l8-2.5V19l-2 1.5V22l3.5-1 3.5 1v-1.5L13 19v-5.5l8 2.5z"/>
+                            </svg>
+                        </div>
+                        <div class="agent-name">Aircraft Health</div>
+                        <div class="agent-status-badge" id="badge-aircraft_health">IDLE</div>
+                    </div>
+                    <div class="agent-body">
+                        <div class="agent-spinner" id="spinner-aircraft_health"></div>
+                        <div class="agent-findings" id="findings-aircraft_health">
+                            <p class="idle-text">Awaiting dispatch...</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="agent-card" id="agent-crew_legality" data-status="idle">
+                    <div class="agent-header">
+                        <div class="agent-icon crew">
+                            <svg viewBox="0 0 24 24" width="24" height="24" fill="currentColor">
+                                <path d="M16 11c1.66 0 2.99-1.34 2.99-3S17.66 5 16 5s-3 1.34-3 3 1.34 3 3 3zm-8 0c1.66 0 2.99-1.34 2.99-3S9.66 5 8 5 5 6.34 5 8s1.34 3 3 3zm0 2c-2.33 0-7 1.17-7 3.5V19h14v-2.5c0-2.33-4.67-3.5-7-3.5zm8 0c-.29 0-.62.02-.97.05 1.16.84 1.97 1.97 1.97 3.45V19h6v-2.5c0-2.33-4.67-3.5-7-3.5z"/>
+                            </svg>
+                        </div>
+                        <div class="agent-name">Crew Legality</div>
+                        <div class="agent-status-badge" id="badge-crew_legality">IDLE</div>
+                    </div>
+                    <div class="agent-body">
+                        <div class="agent-spinner" id="spinner-crew_legality"></div>
+                        <div class="agent-findings" id="findings-crew_legality">
+                            <p class="idle-text">Awaiting dispatch...</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="agent-card" id="agent-weather_slots" data-status="idle">
+                    <div class="agent-header">
+                        <div class="agent-icon weather">
+                            <svg viewBox="0 0 24 24" width="24" height="24" fill="currentColor">
+                                <path d="M19.35 10.04A7.49 7.49 0 0012 4C9.11 4 6.6 5.64 5.35 8.04A5.994 5.994 0 000 14c0 3.31 2.69 6 6 6h13c2.76 0 5-2.24 5-5 0-2.64-2.05-4.78-4.65-4.96z"/>
+                            </svg>
+                        </div>
+                        <div class="agent-name">Weather & Slots</div>
+                        <div class="agent-status-badge" id="badge-weather_slots">IDLE</div>
+                    </div>
+                    <div class="agent-body">
+                        <div class="agent-spinner" id="spinner-weather_slots"></div>
+                        <div class="agent-findings" id="findings-weather_slots">
+                            <p class="idle-text">Awaiting dispatch...</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="agent-card" id="agent-regulatory_compliance" data-status="idle">
+                    <div class="agent-header">
+                        <div class="agent-icon regulatory">
+                            <svg viewBox="0 0 24 24" width="24" height="24" fill="currentColor">
+                                <path d="M12 1L3 5v6c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V5l-9-4zm-2 16l-4-4 1.41-1.41L10 14.17l6.59-6.59L18 9l-8 8z"/>
+                            </svg>
+                        </div>
+                        <div class="agent-name">Regulatory Compliance</div>
+                        <div class="agent-status-badge" id="badge-regulatory_compliance">IDLE</div>
+                    </div>
+                    <div class="agent-body">
+                        <div class="agent-spinner" id="spinner-regulatory_compliance"></div>
+                        <div class="agent-findings" id="findings-regulatory_compliance">
+                            <p class="idle-text">Awaiting dispatch...</p>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </section>
+
+        <!-- Decision Panel -->
+        <section class="decision-panel" id="decisionPanel" style="display:none">
+            <h2 class="panel-title">Dispatch Decision</h2>
+            <div class="decision-card" id="decisionCard">
+                <div class="decision-badge-container">
+                    <div class="decision-badge" id="decisionBadge">
+                        <span class="decision-icon" id="decisionIcon"></span>
+                        <span class="decision-text" id="decisionText">--</span>
+                    </div>
+                    <div class="decision-confidence" id="decisionConfidence"></div>
+                    <div class="decision-risk" id="decisionRisk"></div>
+                </div>
+                <div class="decision-summary" id="decisionSummary"></div>
+                <div class="decision-reasoning" id="decisionReasoning"></div>
+                <div class="decision-actions" id="decisionActions"></div>
+                <div class="decision-alternatives" id="decisionAlternatives"></div>
+            </div>
+        </section>
+
+    </div>
+
+    <!-- Chat Panel -->
+    <section class="chat-panel" id="chatPanel" style="display:none">
+        <h2 class="panel-title">
+            Ask Follow-Up Questions
+            <button class="chat-toggle" id="chatToggle" title="Minimize">&#x2212;</button>
+        </h2>
+        <div class="chat-messages" id="chatMessages"></div>
+        <div class="chat-input-row">
+            <input type="text" id="chatInput" class="chat-input" placeholder="Ask about the dispatch decision..." disabled>
+            <button id="chatSendBtn" class="btn-chat-send" disabled>
+                <svg viewBox="0 0 24 24" width="20" height="20" fill="currentColor">
+                    <path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"/>
+                </svg>
+            </button>
+        </div>
+    </section>
+
+</main>
+
+<!-- Footer -->
+<footer class="footer">
+    <span>Air India Pre-Flight Dispatch Agent v1.0</span>
+    <span class="footer-sep">|</span>
+    <span>Powered by Databricks</span>
+    <span class="footer-sep">|</span>
+    <span id="footerExecTime"></span>
+</footer>
+
+<script src="/static/app.js"></script>
+</body>
+</html>

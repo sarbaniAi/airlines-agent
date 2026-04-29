@@ -1,0 +1,301 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Air India AI COE — Vision & Roadmap</title>
+    <style>
+        :root {
+            --red: #E31837; --gold: #C4A035; --navy: #1B365D;
+            --bg: #0f1724; --surface: #151f30; --glass: rgba(255,255,255,0.04);
+            --border: rgba(255,255,255,0.08); --text: #e2e8f0; --text-dim: #8892a8;
+            --green: #22c55e; --amber: #f59e0b;
+        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: var(--bg); color: var(--text); }
+
+        /* Header */
+        .header { display: flex; justify-content: space-between; align-items: center; padding: 12px 24px; background: var(--surface); border-bottom: 1px solid var(--border); }
+        .header h1 { font-size: 1.1rem; color: var(--gold); }
+        .header .subtitle { font-size: 0.75rem; color: var(--text-dim); }
+        .tabs { display: flex; gap: 0; }
+        .tab { padding: 8px 20px; font-size: 0.8rem; color: var(--text-dim); text-decoration: none; border-bottom: 2px solid transparent; transition: all 0.2s; }
+        .tab:hover { color: var(--text); }
+        .tab.active { color: var(--gold); border-bottom-color: var(--gold); }
+
+        /* Main content */
+        .container { max-width: 1200px; margin: 0 auto; padding: 32px 24px; }
+
+        /* Hero */
+        .hero { text-align: center; margin-bottom: 48px; }
+        .hero h2 { font-size: 2rem; color: var(--gold); margin-bottom: 8px; }
+        .hero p { color: var(--text-dim); font-size: 1rem; max-width: 700px; margin: 0 auto; line-height: 1.6; }
+        .hero-stats { display: flex; justify-content: center; gap: 40px; margin-top: 24px; }
+        .hero-stat { text-align: center; }
+        .hero-stat .num { font-size: 2.2rem; font-weight: 700; color: var(--green); }
+        .hero-stat .num.red { color: var(--red); }
+        .hero-stat .num.gold { color: var(--gold); }
+        .hero-stat .label { font-size: 0.75rem; color: var(--text-dim); margin-top: 2px; }
+
+        /* Section */
+        .section { margin-bottom: 48px; }
+        .section-title { font-size: 1.2rem; color: var(--gold); margin-bottom: 16px; display: flex; align-items: center; gap: 8px; }
+        .section-title .icon { font-size: 1.3rem; }
+
+        /* Workflow comparison */
+        .workflow-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; }
+        .workflow-card { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 24px; }
+        .workflow-card.before { border-left: 3px solid var(--red); }
+        .workflow-card.after { border-left: 3px solid var(--green); }
+        .workflow-card h3 { font-size: 0.95rem; margin-bottom: 16px; }
+        .workflow-card.before h3 { color: var(--red); }
+        .workflow-card.after h3 { color: var(--green); }
+        .workflow-step { display: flex; align-items: flex-start; gap: 12px; margin-bottom: 12px; position: relative; }
+        .step-num { width: 24px; height: 24px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 0.7rem; font-weight: 700; flex-shrink: 0; }
+        .before .step-num { background: rgba(227,24,55,0.15); color: var(--red); }
+        .after .step-num { background: rgba(34,197,94,0.15); color: var(--green); }
+        .step-text { font-size: 0.82rem; line-height: 1.5; }
+        .step-time { color: var(--text-dim); font-size: 0.75rem; margin-left: 36px; margin-top: -8px; margin-bottom: 8px; }
+        .workflow-total { margin-top: 16px; padding-top: 12px; border-top: 1px solid var(--border); font-weight: 600; font-size: 0.9rem; display: flex; justify-content: space-between; }
+
+        /* Action cards */
+        .action-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
+        .action-card { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 20px; transition: transform 0.2s; }
+        .action-card:hover { transform: translateY(-2px); }
+        .action-card .phase { font-size: 0.65rem; text-transform: uppercase; letter-spacing: 1px; color: var(--gold); margin-bottom: 8px; }
+        .action-card h4 { font-size: 0.9rem; margin-bottom: 8px; }
+        .action-card p { font-size: 0.78rem; color: var(--text-dim); line-height: 1.5; }
+        .action-card .tag { display: inline-block; padding: 2px 8px; border-radius: 4px; font-size: 0.68rem; margin-top: 8px; }
+        .tag.ready { background: rgba(34,197,94,0.12); color: var(--green); }
+        .tag.next { background: rgba(59,130,246,0.12); color: #3b82f6; }
+        .tag.future { background: rgba(196,160,53,0.12); color: var(--gold); }
+
+        /* ROI Table */
+        .roi-table { width: 100%; border-collapse: collapse; }
+        .roi-table th { text-align: left; padding: 10px 16px; background: rgba(196,160,53,0.08); color: var(--gold); font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.5px; border-bottom: 1px solid var(--border); }
+        .roi-table td { padding: 10px 16px; font-size: 0.82rem; border-bottom: 1px solid var(--border); }
+        .roi-table tr:hover td { background: var(--glass); }
+        .roi-table .impact { font-weight: 600; color: var(--green); }
+        .roi-table .cost { color: var(--red); }
+
+        /* Timeline */
+        .timeline { position: relative; padding-left: 32px; }
+        .timeline::before { content: ''; position: absolute; left: 12px; top: 0; bottom: 0; width: 2px; background: var(--border); }
+        .timeline-item { position: relative; margin-bottom: 24px; }
+        .timeline-dot { position: absolute; left: -26px; top: 4px; width: 12px; height: 12px; border-radius: 50%; border: 2px solid var(--gold); background: var(--bg); }
+        .timeline-item.done .timeline-dot { background: var(--green); border-color: var(--green); }
+        .timeline-item.active .timeline-dot { background: var(--gold); border-color: var(--gold); animation: pulse 2s infinite; }
+        @keyframes pulse { 0%,100% { box-shadow: 0 0 0 0 rgba(196,160,53,0.4); } 50% { box-shadow: 0 0 0 8px rgba(196,160,53,0); } }
+        .timeline-date { font-size: 0.7rem; color: var(--gold); text-transform: uppercase; letter-spacing: 0.5px; }
+        .timeline-content h4 { font-size: 0.88rem; margin: 4px 0; }
+        .timeline-content p { font-size: 0.78rem; color: var(--text-dim); line-height: 1.5; }
+
+        /* CTA */
+        .cta { background: linear-gradient(135deg, rgba(196,160,53,0.1), rgba(227,24,55,0.05)); border: 1px solid rgba(196,160,53,0.2); border-radius: 16px; padding: 32px; text-align: center; margin-top: 48px; }
+        .cta h3 { color: var(--gold); font-size: 1.3rem; margin-bottom: 8px; }
+        .cta p { color: var(--text-dim); max-width: 600px; margin: 0 auto; line-height: 1.6; }
+        .cta .big-num { font-size: 3rem; font-weight: 800; color: var(--green); margin: 16px 0; }
+    </style>
+</head>
+<body>
+
+<!-- Header with tabs -->
+<div class="header">
+    <div>
+        <h1>Air India AI Center of Excellence</h1>
+        <div class="subtitle">Intelligent Operations Platform — Databricks</div>
+    </div>
+    <div class="tabs">
+        <a href="/" class="tab">Dispatch Agent</a>
+        <a href="/static/vision.html" class="tab active">Vision & Roadmap</a>
+    </div>
+</div>
+
+<div class="container">
+
+    <!-- Hero -->
+    <div class="hero">
+        <h2>From Manual Dispatch to Autonomous Operations</h2>
+        <p>How AI agents transform Air India's 600 daily flights — reducing delays, preventing compliance failures, and recovering $320M+ annually.</p>
+        <div class="hero-stats">
+            <div class="hero-stat"><div class="num red">45 min</div><div class="label">Current manual dispatch time</div></div>
+            <div class="hero-stat"><div class="num green">&lt;60 sec</div><div class="label">With AI Agent system</div></div>
+            <div class="hero-stat"><div class="num gold">$320M+</div><div class="label">Annual value at full scale</div></div>
+            <div class="hero-stat"><div class="num">100+</div><div class="label">AI Agents planned for COE</div></div>
+        </div>
+    </div>
+
+    <!-- Workflow Comparison -->
+    <div class="section">
+        <div class="section-title"><span class="icon">🔄</span> Crew Replacement Workflow — Before vs After</div>
+        <div class="workflow-grid">
+            <div class="workflow-card before">
+                <h3>❌ Current Process (Manual)</h3>
+                <div class="workflow-step"><div class="step-num">1</div><div class="step-text">Dispatcher sees NO-GO on paper checklist</div></div>
+                <div class="step-time">~5 min to review findings</div>
+                <div class="workflow-step"><div class="step-num">2</div><div class="step-text">Calls Crew Scheduling desk by phone</div></div>
+                <div class="step-time">~3 min wait + explanation</div>
+                <div class="workflow-step"><div class="step-num">3</div><div class="step-text">Crew Scheduling manually checks roster, duty hours, qualifications</div></div>
+                <div class="step-time">~10-15 min manual lookup</div>
+                <div class="workflow-step"><div class="step-num">4</div><div class="step-text">Calls replacement crew member (may not answer, retry loop)</div></div>
+                <div class="step-time">~5-20 min (multiple attempts)</div>
+                <div class="workflow-step"><div class="step-num">5</div><div class="step-text">Manual paperwork — update roster, flight plan, dispatch release</div></div>
+                <div class="step-time">~10-15 min documentation</div>
+                <div class="workflow-step"><div class="step-num">6</div><div class="step-text">Inform OCC, Gate Agent, Catering by separate calls</div></div>
+                <div class="step-time">~5-10 min notifications</div>
+                <div class="workflow-total"><span>Total Time</span><span style="color:var(--red)">45 — 90 minutes</span></div>
+            </div>
+            <div class="workflow-card after">
+                <h3>✅ With AI Agent System</h3>
+                <div class="workflow-step"><div class="step-num">1</div><div class="step-text">Agent detects NO-GO, identifies root cause across 4 dimensions simultaneously</div></div>
+                <div class="step-time">~10 seconds (parallel agents)</div>
+                <div class="workflow-step"><div class="step-num">2</div><div class="step-text">Agent queries crew database — checks DGCA duty limits, fatigue, rest, route quals for ALL available crew</div></div>
+                <div class="step-time">~3 seconds (live SQL query)</div>
+                <div class="workflow-step"><div class="step-num">3</div><div class="step-text">Dispatcher clicks "Assign" — system sends SMS/WhatsApp to selected crew member</div></div>
+                <div class="step-time">~10 seconds (one click)</div>
+                <div class="workflow-step"><div class="step-num">4</div><div class="step-text">Crew confirms via mobile app</div></div>
+                <div class="step-time">~30 seconds (push notification)</div>
+                <div class="workflow-step"><div class="step-num">5</div><div class="step-text">System auto-updates flight plan, roster, dispatch release, DGCA compliance record</div></div>
+                <div class="step-time">~5 seconds (automated)</div>
+                <div class="workflow-step"><div class="step-num">6</div><div class="step-text">Auto-notifies OCC, Gate, Catering, Passenger systems</div></div>
+                <div class="step-time">~2 seconds (event-driven)</div>
+                <div class="workflow-total"><span>Total Time</span><span style="color:var(--green)">2 — 3 minutes</span></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ROI Impact -->
+    <div class="section">
+        <div class="section-title"><span class="icon">💰</span> Revenue & Cost Impact — All 9 AI Agents</div>
+        <table class="roi-table">
+            <thead>
+                <tr><th>AI Agent</th><th>Problem Solved</th><th>Current Cost</th><th>Annual Savings</th></tr>
+            </thead>
+            <tbody>
+                <tr><td><strong>Pre-Flight Dispatch Agent</strong></td><td>Manual 250+ item checks, missed issues, delays</td><td class="cost">$55M/year in preventable delays</td><td class="impact">$40 — 55M</td></tr>
+                <tr><td><strong>Predictive Maintenance</strong></td><td>Unplanned AOG ($80K/hr), reactive repairs</td><td class="cost">$120M/year maintenance + AOG</td><td class="impact">$80 — 120M</td></tr>
+                <tr><td><strong>Dynamic Pricing Agent</strong></td><td>Static pricing, revenue leakage per seat</td><td class="cost">1-3% revenue left on table</td><td class="impact">$100 — 200M</td></tr>
+                <tr><td><strong>Revenue Leakage Detection</strong></td><td>Fare violations, wrong refunds, agency fraud</td><td class="cost">1-2% of $7B revenue leaked</td><td class="impact">$35 — 70M</td></tr>
+                <tr><td><strong>Disruption Recovery</strong></td><td>Manual crew/aircraft reassignment during IRROPS</td><td class="cost">$200K per disruption event</td><td class="impact">$25 — 50M</td></tr>
+                <tr><td><strong>Crew Optimization</strong></td><td>Over-rostering, fatigue violations, under-utilization</td><td class="cost">3-5% of $500M crew spend</td><td class="impact">$15 — 25M</td></tr>
+                <tr><td><strong>Airworthiness Compliance</strong></td><td>Missed certificates, regulatory fines, groundings</td><td class="cost">$75K/violation + $500K/grounding</td><td class="impact">$8 — 15M</td></tr>
+                <tr><td><strong>Smart Defect Triage</strong></td><td>Slow defect resolution, repeat failures</td><td class="cost">30% longer turnaround</td><td class="impact">$10 — 20M</td></tr>
+                <tr><td><strong>Customer Disruption Agent</strong></td><td>Manual rebooking, compensation, call center load</td><td class="cost">High call center cost + low NPS</td><td class="impact">$8 — 15M</td></tr>
+            </tbody>
+            <tfoot>
+                <tr style="background:rgba(34,197,94,0.05);"><td colspan="3" style="font-weight:700;color:var(--gold);">TOTAL ANNUAL PORTFOLIO VALUE</td><td class="impact" style="font-size:1.1rem;">$320 — 570M</td></tr>
+            </tfoot>
+        </table>
+    </div>
+
+    <!-- Actionable Extensions -->
+    <div class="section">
+        <div class="section-title"><span class="icon">🚀</span> Production Roadmap — From Demo to Operations</div>
+        <div class="action-grid">
+            <div class="action-card">
+                <div class="phase">Phase 0 — Today</div>
+                <h4>Intelligent Decision Support</h4>
+                <p>Multi-agent dispatch check with Go/No-Go decision, crew recommendations, real-time weather, regulatory compliance — all with guardrails and audit trail.</p>
+                <span class="tag ready">✅ LIVE DEMO</span>
+            </div>
+            <div class="action-card">
+                <div class="phase">Phase 1 — Q3 2026</div>
+                <h4>One-Click Actions</h4>
+                <p>"Assign Crew" button → auto-update roster, send SMS notification, generate amended dispatch release. "Swap Aircraft" → auto-check certs and reassign.</p>
+                <span class="tag next">🔵 NEXT SPRINT</span>
+            </div>
+            <div class="action-card">
+                <div class="phase">Phase 1 — Q3 2026</div>
+                <h4>OCC Integration</h4>
+                <p>Push alerts to Operations Control Center. Real-time dispatch status board. Escalation workflows for NOG-GO decisions requiring VP approval.</p>
+                <span class="tag next">🔵 NEXT SPRINT</span>
+            </div>
+            <div class="action-card">
+                <div class="phase">Phase 2 — Q4 2026</div>
+                <h4>Crew Mobile App</h4>
+                <p>Push notifications to crew devices. Accept/decline assignments. View flight briefing, weather, and dispatch status from phone.</p>
+                <span class="tag future">🟡 PLANNED</span>
+            </div>
+            <div class="action-card">
+                <div class="phase">Phase 2 — Q4 2026</div>
+                <h4>Predictive Disruption</h4>
+                <p>Predict delays 4-6 hours ahead using weather patterns, crew positioning, and maintenance schedules. Proactive recovery before disruption occurs.</p>
+                <span class="tag future">🟡 PLANNED</span>
+            </div>
+            <div class="action-card">
+                <div class="phase">Phase 3 — 2027</div>
+                <h4>Autonomous Operations</h4>
+                <p>Self-healing dispatch — agent detects issue, identifies solution, executes swap, and clears flight for departure with zero human intervention for routine scenarios.</p>
+                <span class="tag future">🟡 PLANNED</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Platform Architecture -->
+    <div class="section">
+        <div class="section-title"><span class="icon">🏗️</span> Why Databricks for 100+ AI Agents</div>
+        <div class="action-grid">
+            <div class="action-card">
+                <h4>Model Agnosticism</h4>
+                <p>AI Gateway routes to any model — GPT-OSS-120B today, fine-tuned aviation model tomorrow. No vendor lock-in at $200M scale.</p>
+            </div>
+            <div class="action-card">
+                <h4>Governance at Scale</h4>
+                <p>MLflow traces every decision. AI Gateway tracks token costs. Unity Catalog controls data access. 18 safety guardrails override AI when needed.</p>
+            </div>
+            <div class="action-card">
+                <h4>Connected Data Layer</h4>
+                <p>Agents share the same lakehouse — dispatch feeds maintenance, pricing feeds revenue, crew feeds compliance. No data silos.</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Timeline -->
+    <div class="section">
+        <div class="section-title"><span class="icon">📅</span> Implementation Timeline</div>
+        <div class="timeline">
+            <div class="timeline-item done">
+                <div class="timeline-dot"></div>
+                <div class="timeline-content">
+                    <div class="timeline-date">May 2026</div>
+                    <h4>Platform Selection & Demo</h4>
+                    <p>Live demo of Pre-Flight Dispatch Agent + Predictive Maintenance. Architecture validation. Databricks selected as COE platform.</p>
+                </div>
+            </div>
+            <div class="timeline-item active">
+                <div class="timeline-dot"></div>
+                <div class="timeline-content">
+                    <div class="timeline-date">Q3 2026</div>
+                    <h4>First 3 Production Agents</h4>
+                    <p>Pre-Flight Dispatch, Predictive Maintenance, Airworthiness Compliance — on real data with OCC integration. Expected impact: $50-80M/year.</p>
+                </div>
+            </div>
+            <div class="timeline-item">
+                <div class="timeline-dot"></div>
+                <div class="timeline-content">
+                    <div class="timeline-date">Q4 2026</div>
+                    <h4>Revenue Agents</h4>
+                    <p>Dynamic Pricing, Revenue Leakage Detection, Disruption Recovery. Expected impact: $150-300M/year cumulative.</p>
+                </div>
+            </div>
+            <div class="timeline-item">
+                <div class="timeline-dot"></div>
+                <div class="timeline-content">
+                    <div class="timeline-date">2027</div>
+                    <h4>Scale to 100+ Agents</h4>
+                    <p>Self-service agent development. Domain-specific fine-tuned models. Full autonomous operations for routine scenarios.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- CTA -->
+    <div class="cta">
+        <h3>The Bottom Line</h3>
+        <div class="big-num">25 — 50x ROI</div>
+        <p>$1.5-2M Databricks platform investment delivers $50-80M in Year 1 from the first 3 agents alone. At full scale across 100+ agents, the $200M COE investment generates $320-570M annually — cutting Air India's $1.1B annual loss by 30%.</p>
+    </div>
+
+</div>
+</body>
+</html>

@@ -1,0 +1,139 @@
+[
+  {
+    "scenario_id": "COND-001",
+    "description": "Two AMBER agents: weather marginal (visibility 2km fog) + MEL Cat-B item expiring in 2 days",
+    "flight_id": "AI-680",
+    "expected_decision": "CONDITIONAL",
+    "expected_risk": "MEDIUM",
+    "key_checks": ["weather_amber", "mel_cat_b_expiring"],
+    "expected_conditions": ["Monitor weather improvement", "Rectify MEL item before next flight"]
+  },
+  {
+    "scenario_id": "COND-002",
+    "description": "Captain approaching 7-day duty limit (52h/55h), fatigue score 55 (elevated)",
+    "flight_id": "AI-101",
+    "expected_decision": "CONDITIONAL",
+    "expected_risk": "MEDIUM",
+    "key_checks": ["captain_approaching_duty_limit", "captain_elevated_fatigue"],
+    "expected_conditions": ["Ensure flight duration does not exceed 3h", "Monitor crew fatigue"]
+  },
+  {
+    "scenario_id": "COND-003",
+    "description": "C-Check due in 20 days, single Cat-A MEL item expiring tomorrow",
+    "flight_id": "AI-302",
+    "expected_decision": "CONDITIONAL",
+    "expected_risk": "MEDIUM",
+    "key_checks": ["c_check_due_soon", "mel_cat_a_expiring_tomorrow"],
+    "expected_conditions": ["Schedule C-Check", "Rectify MEL item within deferral window"]
+  },
+  {
+    "scenario_id": "COND-004",
+    "description": "Destination weather: snow reported, visibility 4km, ceiling 800ft, temp -3C",
+    "flight_id": "AI-187",
+    "expected_decision": "CONDITIONAL",
+    "expected_risk": "MEDIUM",
+    "key_checks": ["snow_at_destination", "low_ceiling", "de_icing_required"],
+    "expected_conditions": ["De-icing required", "Check runway braking action", "Monitor weather"]
+  },
+  {
+    "scenario_id": "COND-005",
+    "description": "COA certificate expiring in 15 days, route requires COA",
+    "flight_id": "AI-111",
+    "expected_decision": "CONDITIONAL",
+    "expected_risk": "MEDIUM",
+    "key_checks": ["coa_expiring_soon"],
+    "expected_conditions": ["Initiate COA renewal immediately", "This flight can proceed"]
+  },
+  {
+    "scenario_id": "COND-006",
+    "description": "Three agents AMBER: weather marginal + crew approaching limits + MEL items present",
+    "flight_id": "AI-512",
+    "expected_decision": "CONDITIONAL",
+    "expected_risk": "HIGH",
+    "key_checks": ["weather_amber", "crew_amber", "aircraft_amber"],
+    "expected_conditions": ["Enhanced monitoring", "Prepare backup crew", "Monitor weather"],
+    "expected_triggered_rules": ["SR-017"]
+  },
+  {
+    "scenario_id": "COND-007",
+    "description": "First Officer medical certificate expiring in 5 days",
+    "flight_id": "AI-620",
+    "expected_decision": "CONDITIONAL",
+    "expected_risk": "MEDIUM",
+    "key_checks": ["fo_medical_expiring_soon"],
+    "expected_conditions": ["Schedule medical renewal", "This flight can proceed"],
+    "expected_triggered_rules": ["SR-018"]
+  },
+  {
+    "scenario_id": "COND-008",
+    "description": "Destination visibility 0.6 km — requires CAT II approach, verify crew qualification",
+    "flight_id": "AI-381",
+    "expected_decision": "CONDITIONAL",
+    "expected_risk": "HIGH",
+    "key_checks": ["low_visibility_cat_ii", "verify_crew_cat_ii_cert"],
+    "expected_conditions": ["Confirm crew CAT II certification", "Prepare alternate airport"]
+  },
+  {
+    "scenario_id": "COND-009",
+    "description": "High total flight hours on aircraft (42,000h), approaching next major check",
+    "flight_id": "AI-710",
+    "expected_decision": "CONDITIONAL",
+    "expected_risk": "LOW",
+    "key_checks": ["high_flight_hours", "approaching_check"],
+    "expected_conditions": ["Enhanced pre-flight inspection", "Schedule maintenance review"]
+  },
+  {
+    "scenario_id": "COND-010",
+    "description": "Origin fog with visibility 2.5km, expected to clear within 2 hours",
+    "flight_id": "AI-855",
+    "expected_decision": "CONDITIONAL",
+    "expected_risk": "MEDIUM",
+    "key_checks": ["origin_fog", "forecast_improvement"],
+    "expected_conditions": ["Delay departure if visibility does not improve", "Monitor METAR updates"]
+  },
+  {
+    "scenario_id": "COND-011",
+    "description": "Wind 30 kts at destination — within dry limit but exceeds wet runway limit",
+    "flight_id": "AI-933",
+    "expected_decision": "CONDITIONAL",
+    "expected_risk": "MEDIUM",
+    "key_checks": ["wind_exceeds_wet_limit", "within_dry_limit"],
+    "expected_conditions": ["Check runway surface condition", "Proceed if runway is dry"]
+  },
+  {
+    "scenario_id": "COND-012",
+    "description": "ETOPS certificate expiring in 25 days for transoceanic route",
+    "flight_id": "AI-183",
+    "expected_decision": "CONDITIONAL",
+    "expected_risk": "MEDIUM",
+    "key_checks": ["etops_expiring_soon"],
+    "expected_conditions": ["Initiate ETOPS renewal", "This flight can proceed"]
+  },
+  {
+    "scenario_id": "COND-013",
+    "description": "Two Cat-B MEL items open with 5 days remaining on both deferrals",
+    "flight_id": "AI-420",
+    "expected_decision": "CONDITIONAL",
+    "expected_risk": "LOW",
+    "key_checks": ["multiple_mel_cat_b", "deferrals_expiring_soon"],
+    "expected_conditions": ["Schedule MEL rectification within 5 days", "Flight can proceed"]
+  },
+  {
+    "scenario_id": "COND-014",
+    "description": "Captain fatigue score 52 (elevated but below RED threshold), approaching duty limit",
+    "flight_id": "AI-505",
+    "expected_decision": "CONDITIONAL",
+    "expected_risk": "MEDIUM",
+    "key_checks": ["captain_elevated_fatigue", "approaching_duty_limit"],
+    "expected_conditions": ["Monitor fatigue", "Consider crew swap for next rotation"]
+  },
+  {
+    "scenario_id": "COND-015",
+    "description": "Destination ceiling 500ft — below CAT I but above CAT II, requires precision approach",
+    "flight_id": "AI-201",
+    "expected_decision": "CONDITIONAL",
+    "expected_risk": "MEDIUM",
+    "key_checks": ["low_ceiling_cat_ii", "precision_approach_required"],
+    "expected_conditions": ["Confirm ILS CAT II capability", "Verify crew ILS qualification", "File alternate"]
+  }
+]

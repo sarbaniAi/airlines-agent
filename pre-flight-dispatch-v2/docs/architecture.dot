@@ -1,0 +1,200 @@
+digraph AirIndiaDispatchArchitecture {
+    rankdir=TB;
+    fontname="Helvetica";
+    bgcolor="#0f1724";
+    pad=0.5;
+    nodesep=0.6;
+    ranksep=0.8;
+
+    // Global defaults
+    node [fontname="Helvetica", fontsize=11, style="filled,rounded", shape=box, color="#2a3a52", fontcolor="#e2e8f0", penwidth=1.5];
+    edge [fontname="Helvetica", fontsize=9, color="#4a5a7a", fontcolor="#8892a8", penwidth=1.2, arrowsize=0.8];
+
+    // ═══════════════════════════════════════════════════
+    // LAYER 1: USER INTERFACE
+    // ═══════════════════════════════════════════════════
+    subgraph cluster_ui {
+        label="USER INTERFACE";
+        fontcolor="#C4A035";
+        fontsize=12;
+        style="dashed";
+        color="#C4A035";
+
+        dispatcher [label="Dispatch\nCoordinator", fillcolor="#1B365D", shape=box];
+        dashboard [label="Dispatch Dashboard\n(Databricks App)", fillcolor="#2a1a00", color="#C4A035", fontcolor="#C4A035"];
+        vision [label="Vision &\nRoadmap Tab", fillcolor="#2a1a00", color="#C4A035", fontcolor="#C4A035"];
+    }
+
+    // ═══════════════════════════════════════════════════
+    // LAYER 2: ORCHESTRATION
+    // ═══════════════════════════════════════════════════
+    subgraph cluster_orchestration {
+        label="ORCHESTRATION LAYER";
+        fontcolor="#C4A035";
+        fontsize=12;
+        style="dashed";
+        color="#C4A035";
+
+        supervisor [label="Dispatch Supervisor\n(LangGraph State Machine)\n─────────────────\nSequential → Conditional Routing\nState: flight_info → agents → decision", fillcolor="#1a2744", color="#3b82f6", fontcolor="#93c5fd", shape=box];
+    }
+
+    // ═══════════════════════════════════════════════════
+    // LAYER 3: AGENTS
+    // ═══════════════════════════════════════════════════
+    subgraph cluster_agents {
+        label="SPECIALIZED AI AGENTS";
+        fontcolor="#C4A035";
+        fontsize=12;
+        style="dashed";
+        color="#C4A035";
+
+        airsafe [label="AirSafe Agent\n──────────\nAircraft Health\nMEL • AD • C-Check", fillcolor="#1a2744", color="#22c55e", fontcolor="#bbf7d0"];
+        crewwatch [label="CrewWatch Agent\n──────────\nCrew Legality\nDGCA FDTL • Fatigue", fillcolor="#1a2744", color="#22c55e", fontcolor="#bbf7d0"];
+        skywatch [label="SkyWatch Agent\n──────────\nWeather & NOTAM\nLive METAR • Wind", fillcolor="#1a2744", color="#3b82f6", fontcolor="#93c5fd"];
+        compliance [label="ComplianceGuard\nAgent\n──────────\nRegulatory\nCOA • ETOPS • RVSM", fillcolor="#1a2744", color="#E31837", fontcolor="#fca5a5"];
+        fleet [label="FleetInsight Agent\n──────────\nGenie Analytics\nNL→SQL Queries", fillcolor="#1a2744", color="#C4A035", fontcolor="#fde68a"];
+    }
+
+    // ═══════════════════════════════════════════════════
+    // LAYER 4: AI/ML PLATFORM
+    // ═══════════════════════════════════════════════════
+    subgraph cluster_aiml {
+        label="AI / ML GOVERNANCE";
+        fontcolor="#FF3621";
+        fontsize=12;
+        style="dashed";
+        color="#FF3621";
+
+        decision_brain [label="DecisionBrain\n──────────\nGPT-OSS-120B\nvia AI Gateway", fillcolor="#2a1500", color="#FF3621", fontcolor="#FF8866"];
+        safety_net [label="SafetyNet\n──────────\n18 Safety Rules\nHallucination Check", fillcolor="#2a0a0a", color="#E31837", fontcolor="#fca5a5"];
+        mlflow [label="MLflow\n──────────\nTracing • Evaluation\n50 Test Scenarios\n5 Custom Scorers", fillcolor="#2a1500", color="#FF3621", fontcolor="#FF8866"];
+    }
+
+    // ═══════════════════════════════════════════════════
+    // LAYER 5: DATA SOURCES
+    // ═══════════════════════════════════════════════════
+
+    // Structured Data
+    subgraph cluster_structured {
+        label="STRUCTURED DATA (Unity Catalog)";
+        fontcolor="#3b82f6";
+        fontsize=11;
+        style="dashed";
+        color="#3b82f6";
+
+        aircraft_fleet [label="aircraft_fleet\n15 aircraft", shape=cylinder, fillcolor="#0f2744", color="#3b82f6", fontcolor="#93c5fd"];
+        mel_items [label="mel_items\n20 MEL entries", shape=cylinder, fillcolor="#0f2744", color="#3b82f6", fontcolor="#93c5fd"];
+        crew_roster [label="crew_roster\n24 crew", shape=cylinder, fillcolor="#0f2744", color="#3b82f6", fontcolor="#93c5fd"];
+        flight_schedule [label="flight_schedule\n10 flights", shape=cylinder, fillcolor="#0f2744", color="#3b82f6", fontcolor="#93c5fd"];
+        certificates [label="aircraft_certificates\n52 certs", shape=cylinder, fillcolor="#0f2744", color="#3b82f6", fontcolor="#93c5fd"];
+        reg_requirements [label="regulatory_\nrequirements\n17 rules", shape=cylinder, fillcolor="#0f2744", color="#3b82f6", fontcolor="#93c5fd"];
+    }
+
+    // Unstructured Data
+    subgraph cluster_unstructured {
+        label="UNSTRUCTURED DATA (Vector Search)";
+        fontcolor="#a855f7";
+        fontsize=11;
+        style="dashed";
+        color="#a855f7";
+
+        dgca_cars [label="DGCA CARs\nSection 7 & 8\nFDTL Regulations", shape=box, fillcolor="#1a0f2e", color="#a855f7", fontcolor="#d8b4fe"];
+        airworthiness_ad [label="Airworthiness\nDirectives\n10 Active ADs", shape=box, fillcolor="#1a0f2e", color="#a855f7", fontcolor="#d8b4fe"];
+        dispatch_sops [label="Dispatch SOPs\n7 Procedures\n250+ Checklist Items", shape=box, fillcolor="#1a0f2e", color="#a855f7", fontcolor="#d8b4fe"];
+    }
+
+    // External
+    subgraph cluster_external {
+        label="EXTERNAL & ANALYTICS";
+        fontcolor="#22c55e";
+        fontsize=11;
+        style="dashed";
+        color="#22c55e";
+
+        weather_api [label="Open-Meteo API\nReal-Time Weather\n13 Airports", shape=box, fillcolor="#0a2a0a", color="#22c55e", fontcolor="#bbf7d0"];
+        genie_space [label="Genie Space\nFlight Ops Intelligence\nNL → SQL", shape=box, fillcolor="#1a2200", color="#C4A035", fontcolor="#fde68a"];
+    }
+
+    // ═══════════════════════════════════════════════════
+    // LAYER 6: ACTIONS
+    // ═══════════════════════════════════════════════════
+    subgraph cluster_actions {
+        label="DISPATCH ACTIONS (Phase 1)";
+        fontcolor="#22c55e";
+        fontsize=12;
+        style="dashed";
+        color="#22c55e";
+
+        assign_crew [label="Assign Crew\nRoster Update", fillcolor="#0a2a0a", color="#22c55e", fontcolor="#bbf7d0"];
+        notify_crew [label="Notify Crew\nSMS / WhatsApp", fillcolor="#0a2a0a", color="#3b82f6", fontcolor="#93c5fd"];
+        gen_release [label="Generate\nDispatch Release", fillcolor="#0a2a0a", color="#C4A035", fontcolor="#fde68a"];
+        status_flow [label="NO-GO → CONDITIONAL → GO", fillcolor="#1a2744", color="#22c55e", fontcolor="#22c55e", shape=box];
+    }
+
+    // ═══════════════════════════════════════════════════
+    // EDGES: User → Orchestration
+    // ═══════════════════════════════════════════════════
+    dispatcher -> dashboard [label="interact", color="#C4A035"];
+    dashboard -> supervisor [label="dispatch check\nrequest", color="#C4A035"];
+
+    // ═══════════════════════════════════════════════════
+    // EDGES: Supervisor → Agents
+    // ═══════════════════════════════════════════════════
+    supervisor -> airsafe [label="1", color="#22c55e"];
+    supervisor -> crewwatch [label="2", color="#22c55e"];
+    supervisor -> skywatch [label="3", color="#3b82f6"];
+    supervisor -> compliance [label="4", color="#E31837"];
+    supervisor -> fleet [label="5 (conditional)", style=dashed, color="#C4A035"];
+    supervisor -> flight_schedule [label="load flight", color="#3b82f6"];
+
+    // ═══════════════════════════════════════════════════
+    // EDGES: Agents → Data Sources (Structured)
+    // ═══════════════════════════════════════════════════
+    airsafe -> aircraft_fleet [label="SQL", color="#3b82f6"];
+    airsafe -> mel_items [label="SQL", color="#3b82f6"];
+    crewwatch -> crew_roster [label="SQL", color="#3b82f6"];
+    compliance -> certificates [label="SQL", color="#3b82f6"];
+    compliance -> reg_requirements [label="SQL", color="#3b82f6"];
+
+    // ═══════════════════════════════════════════════════
+    // EDGES: Agents → Data Sources (Unstructured/RAG)
+    // ═══════════════════════════════════════════════════
+    airsafe -> airworthiness_ad [label="RAG", color="#a855f7", style=dashed];
+    crewwatch -> dgca_cars [label="RAG", color="#a855f7", style=dashed];
+    compliance -> dgca_cars [label="RAG", color="#a855f7", style=dashed];
+    skywatch -> dispatch_sops [label="RAG", color="#a855f7", style=dashed];
+
+    // ═══════════════════════════════════════════════════
+    // EDGES: Agents → External
+    // ═══════════════════════════════════════════════════
+    skywatch -> weather_api [label="Live API", color="#22c55e"];
+    fleet -> genie_space [label="NL query", color="#C4A035"];
+
+    // ═══════════════════════════════════════════════════
+    // EDGES: Agents → AI/ML
+    // ═══════════════════════════════════════════════════
+    {airsafe crewwatch skywatch compliance fleet} -> decision_brain [label="", color="#FF3621", style=invis];
+    supervisor -> decision_brain [label="synthesize", color="#FF3621"];
+    decision_brain -> safety_net [label="validate", color="#E31837"];
+    safety_net -> mlflow [label="trace + score", color="#FF3621"];
+
+    // ═══════════════════════════════════════════════════
+    // EDGES: Decision → Actions
+    // ═══════════════════════════════════════════════════
+    safety_net -> dashboard [label="decision", color="#C4A035"];
+    dashboard -> assign_crew [label="click", color="#22c55e"];
+    dashboard -> notify_crew [label="click", color="#3b82f6"];
+    dashboard -> gen_release [label="click", color="#C4A035"];
+    assign_crew -> status_flow [color="#22c55e"];
+    notify_crew -> status_flow [color="#22c55e"];
+    gen_release -> status_flow [color="#22c55e"];
+
+    // Layout hints
+    {rank=same; dispatcher; dashboard; vision}
+    {rank=same; airsafe; crewwatch; skywatch; compliance; fleet}
+    {rank=same; decision_brain; safety_net; mlflow}
+    {rank=same; aircraft_fleet; mel_items; crew_roster; flight_schedule; certificates; reg_requirements}
+    {rank=same; dgca_cars; airworthiness_ad; dispatch_sops}
+    {rank=same; weather_api; genie_space}
+    {rank=same; assign_crew; notify_crew; gen_release; status_flow}
+}

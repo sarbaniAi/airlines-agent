@@ -1,0 +1,19 @@
+command:
+  - uvicorn
+  - app:app
+  - --host
+  - 0.0.0.0
+  - --port
+  - 8000
+env:
+  - name: DATABRICKS_WAREHOUSE_ID
+    value: "148ccb90800933a1"
+resources:
+  - name: sql-warehouse
+    sql_warehouse:
+      id: "148ccb90800933a1"
+      permission: CAN_USE
+  - name: serving-endpoint
+    serving_endpoint:
+      name: "databricks-gpt-oss-120b"
+      permission: CAN_QUERY

@@ -1,0 +1,182 @@
+[
+  {
+    "scenario_id": "NOGO-001",
+    "description": "COA Canada certificate EXPIRED for DEL-YYZ route",
+    "flight_id": "AI-187",
+    "expected_decision": "NO-GO",
+    "expected_risk": "CRITICAL",
+    "key_checks": ["coa_canada_expired"],
+    "expected_triggered_rules": ["SR-001"]
+  },
+  {
+    "scenario_id": "NOGO-002",
+    "description": "Captain medical certificate expired 5 days ago",
+    "flight_id": "AI-680",
+    "expected_decision": "NO-GO",
+    "expected_risk": "CRITICAL",
+    "key_checks": ["captain_medical_expired"],
+    "expected_triggered_rules": ["SR-007"]
+  },
+  {
+    "scenario_id": "NOGO-003",
+    "description": "Aircraft status is AOG (Aircraft on Ground) due to engine fault",
+    "flight_id": "AI-302",
+    "expected_decision": "NO-GO",
+    "expected_risk": "CRITICAL",
+    "key_checks": ["aircraft_aog"],
+    "expected_triggered_rules": ["SR-004"]
+  },
+  {
+    "scenario_id": "NOGO-004",
+    "description": "Aircraft status is IN_MAINTENANCE for scheduled check",
+    "flight_id": "AI-445",
+    "expected_decision": "NO-GO",
+    "expected_risk": "CRITICAL",
+    "key_checks": ["aircraft_in_maintenance"],
+    "expected_triggered_rules": ["SR-004"]
+  },
+  {
+    "scenario_id": "NOGO-005",
+    "description": "First Officer exceeds 7-day DGCA duty hour limit (58h/55h max)",
+    "flight_id": "AI-512",
+    "expected_decision": "NO-GO",
+    "expected_risk": "CRITICAL",
+    "key_checks": ["fo_duty_7d_exceeded"],
+    "expected_triggered_rules": ["SR-008"]
+  },
+  {
+    "scenario_id": "NOGO-006",
+    "description": "Captain exceeds 28-day duty limit (185h/180h max)",
+    "flight_id": "AI-620",
+    "expected_decision": "NO-GO",
+    "expected_risk": "CRITICAL",
+    "key_checks": ["captain_duty_28d_exceeded"],
+    "expected_triggered_rules": ["SR-009"]
+  },
+  {
+    "scenario_id": "NOGO-007",
+    "description": "Destination visibility 0.1 km — below CAT III minimums, airport effectively closed",
+    "flight_id": "AI-111",
+    "expected_decision": "NO-GO",
+    "expected_risk": "CRITICAL",
+    "key_checks": ["visibility_below_cat_iii"],
+    "expected_triggered_rules": ["SR-012"]
+  },
+  {
+    "scenario_id": "NOGO-008",
+    "description": "Airworthiness certificate expired last month",
+    "flight_id": "AI-855",
+    "expected_decision": "NO-GO",
+    "expected_risk": "CRITICAL",
+    "key_checks": ["airworthiness_expired"],
+    "expected_triggered_rules": ["SR-003"]
+  },
+  {
+    "scenario_id": "NOGO-009",
+    "description": "MEL Category-A item expired 2 days ago — hydraulic pump deferral overdue",
+    "flight_id": "AI-933",
+    "expected_decision": "NO-GO",
+    "expected_risk": "CRITICAL",
+    "key_checks": ["mel_cat_a_expired"],
+    "expected_triggered_rules": ["SR-005"]
+  },
+  {
+    "scenario_id": "NOGO-010",
+    "description": "C-Check overdue by 15 days",
+    "flight_id": "AI-420",
+    "expected_decision": "NO-GO",
+    "expected_risk": "CRITICAL",
+    "key_checks": ["c_check_overdue"],
+    "expected_triggered_rules": ["SR-006"]
+  },
+  {
+    "scenario_id": "NOGO-011",
+    "description": "Crew insufficient rest — Captain only had 8 hours rest (12h minimum for domestic)",
+    "flight_id": "AI-101",
+    "expected_decision": "NO-GO",
+    "expected_risk": "CRITICAL",
+    "key_checks": ["captain_insufficient_rest"],
+    "expected_triggered_rules": ["SR-010"]
+  },
+  {
+    "scenario_id": "NOGO-012",
+    "description": "First Officer missing NAM route qualification for DEL-JFK flight",
+    "flight_id": "AI-173",
+    "expected_decision": "NO-GO",
+    "expected_risk": "CRITICAL",
+    "key_checks": ["fo_missing_nam_qualification"],
+    "expected_triggered_rules": ["SR-011"]
+  },
+  {
+    "scenario_id": "NOGO-013",
+    "description": "Active thunderstorm at destination (LHR) with RED weather status",
+    "flight_id": "AI-111",
+    "expected_decision": "NO-GO",
+    "expected_risk": "CRITICAL",
+    "key_checks": ["thunderstorm_at_destination"],
+    "expected_triggered_rules": ["SR-014"]
+  },
+  {
+    "scenario_id": "NOGO-014",
+    "description": "Insurance certificate expired — cannot operate",
+    "flight_id": "AI-381",
+    "expected_decision": "NO-GO",
+    "expected_risk": "CRITICAL",
+    "key_checks": ["insurance_expired"],
+    "expected_triggered_rules": ["SR-015"]
+  },
+  {
+    "scenario_id": "NOGO-015",
+    "description": "Captain fatigue risk score 82/100 — critical fatigue",
+    "flight_id": "AI-710",
+    "expected_decision": "NO-GO",
+    "expected_risk": "CRITICAL",
+    "key_checks": ["captain_critical_fatigue"],
+    "expected_triggered_rules": ["SR-016"]
+  },
+  {
+    "scenario_id": "NOGO-016",
+    "description": "Destination wind 45 kts — exceeds all crosswind limits",
+    "flight_id": "AI-201",
+    "expected_decision": "NO-GO",
+    "expected_risk": "CRITICAL",
+    "key_checks": ["wind_exceeds_limits"],
+    "expected_triggered_rules": ["SR-013"]
+  },
+  {
+    "scenario_id": "NOGO-017",
+    "description": "ETOPS certificate missing for transoceanic DEL-SFO route",
+    "flight_id": "AI-183",
+    "expected_decision": "NO-GO",
+    "expected_risk": "CRITICAL",
+    "key_checks": ["etops_missing"],
+    "expected_triggered_rules": ["SR-002"]
+  },
+  {
+    "scenario_id": "NOGO-018",
+    "description": "Both crew members have expired medical certificates",
+    "flight_id": "AI-505",
+    "expected_decision": "NO-GO",
+    "expected_risk": "CRITICAL",
+    "key_checks": ["both_crew_medical_expired"],
+    "expected_triggered_rules": ["SR-007"]
+  },
+  {
+    "scenario_id": "NOGO-019",
+    "description": "RVSM certificate expired for route requiring RVSM compliance",
+    "flight_id": "AI-111",
+    "expected_decision": "NO-GO",
+    "expected_risk": "CRITICAL",
+    "key_checks": ["rvsm_expired"],
+    "expected_triggered_rules": ["SR-001"]
+  },
+  {
+    "scenario_id": "NOGO-020",
+    "description": "Compound failure: aircraft AOG + captain medical expired + weather RED",
+    "flight_id": "AI-680",
+    "expected_decision": "NO-GO",
+    "expected_risk": "CRITICAL",
+    "key_checks": ["aircraft_aog", "captain_medical_expired", "weather_red"],
+    "expected_triggered_rules": ["SR-004", "SR-007", "SR-012"]
+  }
+]

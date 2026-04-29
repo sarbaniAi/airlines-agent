@@ -1,0 +1,365 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Air India Pre-Flight Dispatch Agent V2</title>
+    <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+
+<!-- ═══════════════════ HEADER ═══════════════════ -->
+<header class="header">
+    <div class="header-left">
+        <div class="logo">
+            <svg viewBox="0 0 40 40" width="40" height="40">
+                <circle cx="20" cy="20" r="18" fill="#C4A035" opacity="0.2"/>
+                <path d="M12 24 L16 12 L20 18 L24 12 L28 24" stroke="#C4A035" stroke-width="2.5" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+                <circle cx="12" cy="24" r="2" fill="#C4A035"/>
+                <circle cx="20" cy="18" r="2" fill="#C4A035"/>
+                <circle cx="28" cy="24" r="2" fill="#C4A035"/>
+                <line x1="10" y1="26" x2="30" y2="26" stroke="#C4A035" stroke-width="2" stroke-linecap="round"/>
+            </svg>
+            <div class="logo-text">
+                <h1>Air India</h1>
+                <span class="logo-subtitle">Pre-Flight Readiness &amp; Dispatch Agent V2</span>
+            </div>
+        </div>
+    </div>
+    <div class="header-right">
+        <div class="databricks-badge">
+            <svg viewBox="0 0 24 24" width="16" height="16" fill="#FF3621">
+                <path d="M12 0L1.5 6v12L12 24l10.5-6V6L12 0zm0 2.2l8.3 4.8v9.6L12 21.4l-8.3-4.8V7z"/>
+                <path d="M12 7.2L7.2 10v5.6L12 18.4l4.8-2.8V10L12 7.2z"/>
+            </svg>
+            <span>Powered by Databricks AI</span>
+        </div>
+        <div style="display:flex;gap:0;margin-right:20px;">
+            <a href="/" style="padding:8px 18px;font-size:0.78rem;color:#C4A035;text-decoration:none;border-bottom:2px solid #C4A035;">Dispatch Agent</a>
+            <a href="/static/vision.html" style="padding:8px 18px;font-size:0.78rem;color:#8892a8;text-decoration:none;border-bottom:2px solid transparent;">Vision & Roadmap</a>
+        </div>
+        <div class="header-status" id="systemStatus">
+            <span class="status-dot green"></span>
+            <span>System Online</span>
+        </div>
+        <div class="header-time" id="currentTime"></div>
+    </div>
+</header>
+
+<!-- ═══════════════════ MAIN 3-COLUMN LAYOUT ═══════════════════ -->
+<main class="dashboard">
+
+    <!-- ─────────── LEFT COLUMN (40%) ─────────── -->
+    <section class="col-left">
+
+        <!-- Flight Selector -->
+        <div class="panel flight-selector-panel">
+            <div class="panel-header">
+                <span class="panel-icon">&#9992;</span>
+                <span class="panel-title">Flight Selector</span>
+            </div>
+            <div class="flight-selector-row">
+                <select id="flightSelect" class="flight-dropdown">
+                    <option value="">-- Select Flight --</option>
+                </select>
+                <button id="btnDispatch" class="btn-dispatch" disabled>Run Dispatch Check</button>
+            </div>
+        </div>
+
+        <!-- Flight Info Card -->
+        <div class="panel flight-info-panel" id="flightInfoPanel" style="display:none;">
+            <div class="panel-header">
+                <span class="panel-icon">&#128203;</span>
+                <span class="panel-title">Flight Information</span>
+            </div>
+            <div class="flight-info-grid" id="flightInfoGrid"></div>
+        </div>
+
+        <!-- Agent Cards -->
+        <div class="panel agent-card" data-agent="aircraft_health">
+            <div class="agent-card-header">
+                <span class="agent-icon">&#9992;&#65039;</span>
+                <span class="agent-name">Aircraft Health</span>
+                <span class="agent-badge idle">IDLE</span>
+                <span class="agent-time"></span>
+            </div>
+            <div class="agent-card-body">
+                <div class="agent-findings"></div>
+                <div class="agent-refs"></div>
+            </div>
+        </div>
+
+        <div class="panel agent-card" data-agent="crew_legality">
+            <div class="agent-card-header">
+                <span class="agent-icon">&#128101;</span>
+                <span class="agent-name">Crew Legality</span>
+                <span class="agent-badge idle">IDLE</span>
+                <span class="agent-time"></span>
+            </div>
+            <div class="agent-card-body">
+                <div class="agent-findings"></div>
+                <div class="agent-refs"></div>
+            </div>
+        </div>
+
+        <div class="panel agent-card" data-agent="weather_notam">
+            <div class="agent-card-header">
+                <span class="agent-icon">&#127780;&#65039;</span>
+                <span class="agent-name">Weather &amp; NOTAM</span>
+                <span class="agent-badge idle">IDLE</span>
+                <span class="agent-time"></span>
+            </div>
+            <div class="agent-card-body">
+                <div class="agent-findings"></div>
+                <div class="agent-refs"></div>
+            </div>
+        </div>
+
+        <div class="panel agent-card" data-agent="regulatory_compliance">
+            <div class="agent-card-header">
+                <span class="agent-icon">&#128220;</span>
+                <span class="agent-name">Regulatory Compliance</span>
+                <span class="agent-badge idle">IDLE</span>
+                <span class="agent-time"></span>
+            </div>
+            <div class="agent-card-body">
+                <div class="agent-findings"></div>
+                <div class="agent-refs"></div>
+            </div>
+        </div>
+
+        <div class="panel agent-card" data-agent="genie_analytics">
+            <div class="agent-card-header">
+                <span class="agent-icon">&#128300;</span>
+                <span class="agent-name">Genie Analytics</span>
+                <span class="agent-badge idle">IDLE</span>
+                <span class="agent-time"></span>
+            </div>
+            <div class="agent-card-body">
+                <div class="agent-findings"></div>
+                <div class="agent-refs"></div>
+            </div>
+        </div>
+
+    </section>
+
+    <!-- ─────────── CENTER COLUMN (35%) ─────────── -->
+    <section class="col-center">
+
+        <!-- Decision Panel -->
+        <div class="panel decision-panel" id="decisionPanel">
+            <div class="panel-header">
+                <span class="panel-icon">&#129504;</span>
+                <span class="panel-title">Dispatch Decision</span>
+            </div>
+            <div class="decision-body" id="decisionBody">
+                <div class="decision-placeholder">
+                    <p>Select a flight and run dispatch check to see the decision.</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Required Actions -->
+        <div class="panel actions-panel" id="actionsPanel" style="display:none;">
+            <div class="panel-header">
+                <span class="panel-icon">&#9888;&#65039;</span>
+                <span class="panel-title">Required Actions</span>
+            </div>
+            <ol class="actions-list" id="actionsList"></ol>
+        </div>
+
+        <!-- Alternatives -->
+        <div class="panel alternatives-panel" id="alternativesPanel" style="display:none;">
+            <div class="panel-header">
+                <span class="panel-icon">&#128260;</span>
+                <span class="panel-title">Alternatives</span>
+            </div>
+            <ul class="alternatives-list" id="alternativesList"></ul>
+        </div>
+
+        <!-- Chat Panel -->
+        <div class="panel chat-panel">
+            <div class="panel-header">
+                <span class="panel-icon">&#128172;</span>
+                <span class="panel-title">Dispatch Chat</span>
+            </div>
+            <div class="chat-messages" id="chatMessages">
+                <div class="chat-placeholder">Ask follow-up questions about the dispatch decision.</div>
+            </div>
+            <div class="chat-input-row">
+                <input type="text" id="chatInput" class="chat-input" placeholder="e.g. Who is the replacement crew for Capt. Sharma?" disabled>
+                <button id="btnChatSend" class="btn-chat-send" disabled>Send</button>
+            </div>
+        </div>
+
+    </section>
+
+    <!-- ─────────── RIGHT COLUMN (25%) ─────────── -->
+    <section class="col-right">
+
+        <!-- Agent Orchestration Flow -->
+        <div class="panel flow-panel">
+            <div class="panel-header">
+                <span class="panel-icon">&#128296;</span>
+                <span class="panel-title">Agent Orchestration Flow</span>
+            </div>
+            <div class="flow-pipeline" id="flowPipeline">
+
+                <div class="flow-node" data-flow="supervisor">
+                    <div class="flow-node-icon">&#128203;</div>
+                    <div class="flow-node-info">
+                        <div class="flow-node-label">Dispatch Supervisor</div>
+                        <div class="flow-node-detail">Orchestrator &bull; Flight Context Loader</div>
+                    </div>
+                    <div class="flow-node-badge"></div>
+                </div>
+                <div class="flow-connector"></div>
+
+                <div class="flow-node" data-flow="aircraft_health">
+                    <div class="flow-node-icon">&#9992;&#65039;</div>
+                    <div class="flow-node-info">
+                        <div class="flow-node-label">AirSafe Agent</div>
+                        <div class="flow-node-detail">MEL &bull; Airworthiness Directives &bull; C-Check</div>
+                    </div>
+                    <div class="flow-node-badge"></div>
+                </div>
+                <div class="flow-connector"></div>
+
+                <div class="flow-node" data-flow="crew_legality">
+                    <div class="flow-node-icon">&#128101;</div>
+                    <div class="flow-node-info">
+                        <div class="flow-node-label">CrewWatch Agent</div>
+                        <div class="flow-node-detail">DGCA FDTL &bull; Fatigue &bull; Route Quals</div>
+                    </div>
+                    <div class="flow-node-badge"></div>
+                </div>
+                <div class="flow-connector"></div>
+
+                <div class="flow-node" data-flow="weather_notam">
+                    <div class="flow-node-icon">&#127780;&#65039;</div>
+                    <div class="flow-node-info">
+                        <div class="flow-node-label">SkyWatch Agent</div>
+                        <div class="flow-node-detail">Live METAR &bull; Ceiling &bull; Visibility &bull; Wind</div>
+                    </div>
+                    <div class="flow-node-badge"></div>
+                </div>
+                <div class="flow-connector"></div>
+
+                <div class="flow-node" data-flow="regulatory_compliance">
+                    <div class="flow-node-icon">&#128220;</div>
+                    <div class="flow-node-info">
+                        <div class="flow-node-label">ComplianceGuard Agent</div>
+                        <div class="flow-node-detail">COA &bull; ETOPS &bull; RVSM &bull; Certificates</div>
+                    </div>
+                    <div class="flow-node-badge"></div>
+                </div>
+                <div class="flow-connector"></div>
+
+                <div class="flow-node" data-flow="genie_analytics">
+                    <div class="flow-node-icon">&#128300;</div>
+                    <div class="flow-node-info">
+                        <div class="flow-node-label">FleetInsight Agent</div>
+                        <div class="flow-node-detail">Genie NL&#8594;SQL &bull; Fleet Analytics</div>
+                    </div>
+                    <div class="flow-node-badge"></div>
+                </div>
+                <div class="flow-connector"></div>
+
+                <div class="flow-node" data-flow="llm_synthesis">
+                    <div class="flow-node-icon">&#129504;</div>
+                    <div class="flow-node-info">
+                        <div class="flow-node-label">DecisionBrain</div>
+                        <div class="flow-node-detail">GPT-OSS-120B &bull; Reasoning Engine</div>
+                    </div>
+                    <div class="flow-node-badge"></div>
+                </div>
+                <div class="flow-connector"></div>
+
+                <div class="flow-node" data-flow="guardrails">
+                    <div class="flow-node-icon">&#128737;&#65039;</div>
+                    <div class="flow-node-info">
+                        <div class="flow-node-label">SafetyNet Agent</div>
+                        <div class="flow-node-detail">18 Safety Rules &bull; Hallucination Check</div>
+                    </div>
+                    <div class="flow-node-badge"></div>
+                </div>
+                <div class="flow-connector"></div>
+
+                <div class="flow-node" data-flow="decision">
+                    <div class="flow-node-icon">&#9989;</div>
+                    <div class="flow-node-info">
+                        <div class="flow-node-label">DISPATCH DECISION</div>
+                        <div class="flow-node-detail">GO &bull; NO-GO &bull; CONDITIONAL</div>
+                    </div>
+                    <div class="flow-node-badge"></div>
+                </div>
+
+            </div>
+        </div>
+
+        <!-- Safety Rules Panel -->
+        <div class="panel rules-panel">
+            <div class="panel-header">
+                <span class="panel-icon">&#128737;&#65039;</span>
+                <span class="panel-title">Safety Guardrails</span>
+                <span class="rules-count">(18 Rules Active)</span>
+            </div>
+            <div class="rules-list" id="rulesList">
+                <div class="rule-item" data-rule="SR-001"><span class="rule-dot"></span><b>SR-001</b> Expired Regulatory Certificate <span class="rule-action">NO-GO</span></div>
+                <div class="rule-item" data-rule="SR-002"><span class="rule-dot"></span><b>SR-002</b> Expired Medical Certificate <span class="rule-action">NO-GO</span></div>
+                <div class="rule-item" data-rule="SR-003"><span class="rule-dot"></span><b>SR-003</b> Expired Airworthiness Certificate <span class="rule-action">NO-GO</span></div>
+                <div class="rule-item" data-rule="SR-004"><span class="rule-dot"></span><b>SR-004</b> Aircraft Not Serviceable <span class="rule-action">NO-GO</span></div>
+                <div class="rule-item" data-rule="SR-005"><span class="rule-dot"></span><b>SR-005</b> MEL Cat-A Expired <span class="rule-action">NO-GO</span></div>
+                <div class="rule-item" data-rule="SR-006"><span class="rule-dot"></span><b>SR-006</b> C-Check Overdue <span class="rule-action">NO-GO</span></div>
+                <div class="rule-item" data-rule="SR-007"><span class="rule-dot"></span><b>SR-007</b> Crew Duty 7-Day Exceeded <span class="rule-action">NO-GO</span></div>
+                <div class="rule-item" data-rule="SR-008"><span class="rule-dot"></span><b>SR-008</b> Crew Duty 28-Day Exceeded <span class="rule-action">NO-GO</span></div>
+                <div class="rule-item" data-rule="SR-009"><span class="rule-dot"></span><b>SR-009</b> Insufficient Crew Rest <span class="rule-action">NO-GO</span></div>
+                <div class="rule-item" data-rule="SR-010"><span class="rule-dot"></span><b>SR-010</b> Crew Fatigue Critical <span class="rule-action">NO-GO</span></div>
+                <div class="rule-item" data-rule="SR-011"><span class="rule-dot"></span><b>SR-011</b> Missing Route Qualification <span class="rule-action">NO-GO</span></div>
+                <div class="rule-item" data-rule="SR-012"><span class="rule-dot"></span><b>SR-012</b> Weather Below Minimums (Origin) <span class="rule-action">NO-GO</span></div>
+                <div class="rule-item" data-rule="SR-013"><span class="rule-dot"></span><b>SR-013</b> Weather Below Minimums (Dest) <span class="rule-action">NO-GO</span></div>
+                <div class="rule-item" data-rule="SR-014"><span class="rule-dot"></span><b>SR-014</b> Thunderstorm Active <span class="rule-action cond">CONDITIONAL</span></div>
+                <div class="rule-item" data-rule="SR-015"><span class="rule-dot"></span><b>SR-015</b> Insurance Expired <span class="rule-action">NO-GO</span></div>
+                <div class="rule-item" data-rule="SR-016"><span class="rule-dot"></span><b>SR-016</b> Crew Medical Expiring (30d) <span class="rule-action cond">CONDITIONAL</span></div>
+                <div class="rule-item" data-rule="SR-017"><span class="rule-dot"></span><b>SR-017</b> Multiple AMBER Findings <span class="rule-action cond">CONDITIONAL</span></div>
+                <div class="rule-item" data-rule="SR-018"><span class="rule-dot"></span><b>SR-018</b> Aircraft High Flight Hours <span class="rule-action cond">CONDITIONAL</span></div>
+            </div>
+        </div>
+
+        <!-- Evaluation Scores -->
+        <div class="panel eval-panel" id="evalPanel">
+            <div class="panel-header">
+                <span class="panel-icon">&#128200;</span>
+                <span class="panel-title">Evaluation Scores</span>
+            </div>
+            <div class="eval-body" id="evalBody">
+                <div class="eval-row">
+                    <span class="eval-label">Execution Time</span>
+                    <span class="eval-value" id="evalTime">--</span>
+                </div>
+                <div class="eval-row">
+                    <span class="eval-label">Confidence</span>
+                    <span class="eval-value" id="evalConfidence">--</span>
+                </div>
+                <div class="eval-row">
+                    <span class="eval-label">Risk Level</span>
+                    <span class="eval-value" id="evalRisk">--</span>
+                </div>
+                <div class="eval-row">
+                    <span class="eval-label">Rules Triggered</span>
+                    <span class="eval-value" id="evalRules">--</span>
+                </div>
+                <div class="eval-row">
+                    <span class="eval-label">Agents Completed</span>
+                    <span class="eval-value" id="evalAgents">--</span>
+                </div>
+            </div>
+        </div>
+
+    </section>
+
+</main>
+
+<script src="/static/app.js"></script>
+</body>
+</html>
