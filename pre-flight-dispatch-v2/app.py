@@ -27,6 +27,7 @@ from orchestrator.supervisor import run_dispatch_check, chat_about_dispatch
 from tools.sql_tools import query_join, test_connectivity
 from tools.vector_search_tools import test_vs_connectivity
 from tools.llm_tools import llm_call
+from evaluation.api import register_eval_routes
 
 # ── Logging ────────────────────────────────────────────────────────────────
 logging.basicConfig(
@@ -81,6 +82,9 @@ app = FastAPI(
 static_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)), "static")
 if os.path.isdir(static_dir):
     app.mount("/static", StaticFiles(directory=static_dir), name="static")
+
+# Register evaluation API routes
+register_eval_routes(app)
 
 
 # ── Pydantic models ──────────────────────────────────────────────────────
