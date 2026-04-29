@@ -6,6 +6,12 @@ DGCA CARs, Airworthiness Directives, and Dispatch SOPs.
 import logging
 from typing import Optional
 
+try:
+    import mlflow
+    HAS_MLFLOW = True
+except ImportError:
+    HAS_MLFLOW = False
+
 from databricks.sdk import WorkspaceClient
 
 from config import VS_ENDPOINT, VS_INDEX
@@ -49,6 +55,14 @@ def search_regulations(
 
     columns = ["content", "doc_type", "doc_id", "section", "title"]
 
+    span = None
+    try:
+        if HAS_MLFLOW:
+            span = mlflow.start_span(name="vector_search", span_type="RETRIEVER")
+            span.set_inputs({"query": query, "doc_type": doc_type, "num_results": num_results})
+    except Exception:
+        span = None
+
     try:
         response = w.vector_search_indexes.query_index(
             index_name=VS_INDEX,
@@ -69,10 +83,27 @@ def search_regulations(
             "VS search: query=%s, doc_type=%s, results=%d",
             query[:80], doc_type, len(results),
         )
+
+        try:
+            if span is not None:
+                top_score = results[0].get("score", 0) if results else 0
+                span.set_outputs({"results_count": len(results), "top_score": top_score})
+                span.end()
+        except Exception:
+            pass
+
         return results
 
     except Exception as e:
         logger.warning("Vector Search query failed (graceful degradation): %s", e)
+
+        try:
+            if span is not None:
+                span.set_outputs({"error": str(e), "results_count": 0})
+                span.end()
+        except Exception:
+            pass
+
         return []
 
 

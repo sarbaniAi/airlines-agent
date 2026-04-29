@@ -9,6 +9,12 @@ import logging
 import time
 import threading
 
+try:
+    import mlflow
+    HAS_MLFLOW = True
+except ImportError:
+    HAS_MLFLOW = False
+
 from config import LLM_MODEL
 from tools.sql_tools import execute_raw
 
@@ -139,6 +145,18 @@ def llm_call(
     input_tokens = _estimate_tokens(combined)
     start = time.time()
 
+    span = None
+    try:
+        if HAS_MLFLOW:
+            span = mlflow.start_span(name="llm_call", span_type="LLM")
+            span.set_inputs({
+                "system_prompt": system_prompt[:200],
+                "user_prompt": user_prompt[:200],
+                "model": LLM_MODEL,
+            })
+    except Exception:
+        span = None
+
     try:
         rows = execute_raw(sql)
         latency = (time.time() - start) * 1000
@@ -147,14 +165,43 @@ def llm_call(
             response_text = rows[0]["response"]
             output_tokens = _estimate_tokens(response_text)
             token_tracker.record(input_tokens, output_tokens, latency, LLM_MODEL, "llm_call")
+
+            try:
+                if span is not None:
+                    span.set_outputs({
+                        "response": response_text[:500],
+                        "input_tokens": input_tokens,
+                        "output_tokens": output_tokens,
+                        "latency_ms": round(latency, 1),
+                    })
+                    span.end()
+            except Exception:
+                pass
+
             return response_text
 
         token_tracker.record(input_tokens, 0, latency, LLM_MODEL, "llm_call_empty")
+
+        try:
+            if span is not None:
+                span.set_outputs({"response": "", "input_tokens": input_tokens, "output_tokens": 0})
+                span.end()
+        except Exception:
+            pass
+
         return ""
     except Exception as e:
         latency = (time.time() - start) * 1000
         token_tracker.record(input_tokens, 0, latency, LLM_MODEL, "llm_call_error")
         logger.error("llm_call failed: %s", e)
+
+        try:
+            if span is not None:
+                span.set_outputs({"error": str(e)})
+                span.end()
+        except Exception:
+            pass
+
         return ""
 
 

@@ -19,8 +19,9 @@ logger = logging.getLogger("evaluation.api")
 
 class RunEvalRequest(BaseModel):
     category: Optional[str] = None       # "go", "nogo", "conditional", or None
-    max_scenarios: Optional[int] = None   # cap scenario count
-    dry_run: bool = False                 # use mock data
+    scenario_id: Optional[str] = None    # run a single scenario by ID
+    max_scenarios: Optional[int] = None  # cap scenario count
+    dry_run: bool = False                # use mock data
 
 
 # In-memory cache of the latest eval report
@@ -47,6 +48,7 @@ def register_eval_routes(app: FastAPI) -> None:
 
             report = await run_evaluation(
                 category=request.category,
+                scenario_id=request.scenario_id,
                 max_scenarios=request.max_scenarios,
                 dry_run=request.dry_run,
                 log_to_mlflow=True,

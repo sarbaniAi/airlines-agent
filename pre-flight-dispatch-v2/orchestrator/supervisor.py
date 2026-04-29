@@ -657,6 +657,64 @@ async def run_dispatch_check(
         "messages": final_state.get("messages", []),
     }
 
+    # ── Part 2: Production scoring (code-based, fast, no LLM calls) ──
+    try:
+        from evaluation.scorers import (
+            score_completeness, score_recommendation_quality,
+            score_latency_budget, score_regulatory_citation, score_action_specificity,
+        )
+
+        decision_obj = result.get("decision", {})
+        agent_res = result.get("agent_results", {})
+        actions = decision_obj.get("actions", []) if isinstance(decision_obj, dict) else []
+        alternatives = decision_obj.get("alternatives", []) if isinstance(decision_obj, dict) else []
+        reasoning = str(decision_obj.get("reasoning", "")) if isinstance(decision_obj, dict) else ""
+
+        # Collect all findings text for regulatory citation scorer
+        all_findings_text = ""
+        for _name, ar in agent_res.items():
+            if isinstance(ar, dict):
+                for f in ar.get("findings", []):
+                    all_findings_text += f" {f}"
+
+        production_scores = {
+            "completeness": score_completeness(agent_res),
+            "recommendation_quality": score_recommendation_quality(
+                actions, alternatives, agent_res
+            ),
+            "latency": score_latency_budget(elapsed),
+            "regulatory_citation": score_regulatory_citation(
+                reasoning, all_findings_text
+            ),
+            "action_specificity": score_action_specificity(actions),
+        }
+        result["quality_scores"] = production_scores
+
+        # Log scores to MLflow
+        try:
+            if mlflow_run_id:
+                with mlflow.start_run(run_id=mlflow_run_id):
+                    for k, v in production_scores.items():
+                        mlflow.log_metric(f"score_{k}", v)
+        except Exception:
+            pass
+
+    except Exception as e:
+        logger.warning("Production scoring failed (non-fatal): %s", e)
+        result["quality_scores"] = {}
+
+    # ── Part 4: MLflow trace URL ──
+    try:
+        if mlflow_run_id:
+            workspace_url = "https://adb-984752964297111.11.azuredatabricks.net"
+            experiment_id = "42057949565857"
+            result["mlflow_trace_url"] = (
+                f"{workspace_url}/#mlflow/experiments/{experiment_id}"
+                f"/runs/{mlflow_run_id}"
+            )
+    except Exception:
+        pass
+
     if progress_callback:
         await progress_callback("orchestrator", "COMPLETE", {
             "decision": result.get("decision", {}),

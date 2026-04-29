@@ -6,6 +6,12 @@ import logging
 import requests
 import urllib3
 
+try:
+    import mlflow
+    HAS_MLFLOW = True
+except ImportError:
+    HAS_MLFLOW = False
+
 urllib3.disable_warnings()
 logger = logging.getLogger("tools.weather_api")
 
@@ -38,6 +44,14 @@ def get_live_weather(airport_code: str) -> dict:
     airport = AIRPORTS.get(airport_code.upper())
     if not airport:
         return _fallback_weather(airport_code)
+
+    span = None
+    try:
+        if HAS_MLFLOW:
+            span = mlflow.start_span(name="weather_api", span_type="TOOL")
+            span.set_inputs({"airport": airport_code, "airport_name": airport.get("name", "")})
+    except Exception:
+        span = None
 
     try:
         # Open-Meteo current weather API (free, no key)
@@ -83,7 +97,7 @@ def get_live_weather(airport_code: str) -> dict:
         metar = _build_metar(airport["icao"], temp_c, wind_speed_kts, wind_dir,
                             visibility_km, ceiling_ft, conditions, humidity, wind_gusts_kts)
 
-        return {
+        weather_result = {
             "airport_code": airport_code,
             "airport_name": airport["name"],
             "country": airport["country"],
@@ -102,8 +116,31 @@ def get_live_weather(airport_code: str) -> dict:
             "severity": _assess_severity(visibility_km, ceiling_ft, wind_speed_kts, conditions),
         }
 
+        try:
+            if span is not None:
+                span.set_outputs({
+                    "conditions": conditions,
+                    "temperature": round(temp_c, 1),
+                    "visibility_km": visibility_km,
+                    "severity": weather_result["severity"],
+                    "source": "Open-Meteo",
+                })
+                span.end()
+        except Exception:
+            pass
+
+        return weather_result
+
     except Exception as e:
         logger.warning(f"Open-Meteo API failed for {airport_code}: {e}")
+
+        try:
+            if span is not None:
+                span.set_outputs({"error": str(e), "source": "FALLBACK"})
+                span.end()
+        except Exception:
+            pass
+
         return _fallback_weather(airport_code)
 
 

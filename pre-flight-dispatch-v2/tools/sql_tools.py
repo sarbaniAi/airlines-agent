@@ -8,6 +8,12 @@ import time
 import logging
 from typing import Optional
 
+try:
+    import mlflow
+    HAS_MLFLOW = True
+except ImportError:
+    HAS_MLFLOW = False
+
 from databricks.sdk import WorkspaceClient
 from databricks.sdk.service.sql import StatementState
 
@@ -128,6 +134,35 @@ def _execute_sql(sql: str, *, timeout: str = "30s", poll_interval: float = 1.0) 
 
 # ── Public API ─────────────────────────────────────────────────────────────
 
+def _traced_sql(sql: str, span_name: str = "sql_query") -> list[dict]:
+    """Execute SQL with optional MLflow tracing. Never fails due to tracing."""
+    span = None
+    try:
+        if HAS_MLFLOW:
+            span = mlflow.start_span(name=span_name, span_type="RETRIEVER")
+            span.set_inputs({"query": sql[:500]})
+    except Exception:
+        span = None
+
+    try:
+        rows = _execute_sql(sql)
+        try:
+            if span is not None:
+                span.set_outputs({"row_count": len(rows)})
+                span.end()
+        except Exception:
+            pass
+        return rows
+    except Exception as e:
+        try:
+            if span is not None:
+                span.set_outputs({"error": str(e)})
+                span.end()
+        except Exception:
+            pass
+        raise
+
+
 def query_table(
     table_name: str,
     where_clause: str = "",
@@ -158,7 +193,7 @@ def query_table(
         sql += f" LIMIT {limit}"
 
     logger.debug("query_table SQL: %s", sql)
-    return _execute_sql(sql)
+    return _traced_sql(sql, span_name="sql_query_table")
 
 
 def query_join(sql: str) -> list[dict]:
@@ -173,7 +208,7 @@ def query_join(sql: str) -> list[dict]:
     """
     qualified = _qualify_tables(sql)
     logger.debug("query_join SQL: %s", qualified)
-    return _execute_sql(qualified)
+    return _traced_sql(qualified, span_name="sql_query_join")
 
 
 def execute_raw(sql: str) -> list[dict]:
@@ -181,7 +216,7 @@ def execute_raw(sql: str) -> list[dict]:
     Run a raw SQL statement without any table-name qualification.
     Use this for ai_query calls or other special SQL.
     """
-    return _execute_sql(sql)
+    return _traced_sql(sql, span_name="sql_execute_raw")
 
 
 def test_connectivity() -> bool:
